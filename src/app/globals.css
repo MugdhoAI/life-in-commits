@@ -221,7 +221,7 @@ input[type="date"] {
 
 .life-grid {
   display: grid;
-  grid-template-rows: repeat(90, 9px);
+  grid-template-rows: repeat(52, 9px);
   grid-auto-flow: column;
   grid-auto-columns: 9px;
   gap: 3px;
@@ -359,7 +359,7 @@ input[type="date"] {
   }
 
   .life-grid {
-    grid-template-rows: repeat(90, 7px);
+    grid-template-rows: repeat(52, 7px);
     grid-auto-columns: 7px;
     gap: 2px;
   }
