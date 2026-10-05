@@ -30,8 +30,9 @@ describe("calculateAge", () => {
     expect(calculateAge(date("2007-12-20"), today)).toEqual({ years: 18, months: 9, days: 15 });
   });
 
-  it("handles leap year dates", () => {
-    expect(calculateAge(date("2008-02-29"), date("2025-02-28"))).toEqual({ years: 16, months: 0, days: 0 });
+  it("handles a leap day birth date on a non leap year birthday", () => {
+    expect(calculateAge(date("2008-02-29"), date("2025-02-28"))).toEqual({ years: 17, months: 0, days: 0 });
+    expect(calculateAge(date("2008-02-29"), date("2025-03-01"))).toEqual({ years: 17, months: 0, days: 1 });
   });
 });
 
@@ -61,5 +62,10 @@ describe("isBirthday", () => {
   it("recognizes the current birthday", () => {
     expect(isBirthday(date("2007-10-05"), today)).toBe(true);
     expect(isBirthday(date("2007-10-04"), today)).toBe(false);
+  });
+
+  it("treats February 28 as the birthday for a February 29 birth in non leap years", () => {
+    expect(isBirthday(date("2008-02-29"), date("2025-02-28"))).toBe(true);
+    expect(isBirthday(date("2008-02-29"), date("2025-03-01"))).toBe(false);
   });
 });
