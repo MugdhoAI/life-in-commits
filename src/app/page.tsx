@@ -2,7 +2,6 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { buildLifeWeeks, calculateStats, isBirthday, parseBirthDate } from "@/lib/life";
-import "./globals.css";
 
 const DEFAULT_TODAY = new Date();
 
