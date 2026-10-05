@@ -1,9 +1,9 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { buildLifeWeeks, calculateStats, isBirthday, parseBirthDate } from "@/lib/life";
+import { buildLifeWeeks, calculateAge, calculateStats, isBirthday, parseBirthDate } from "@/lib/life";
 
-const DEFAULT_TODAY = new Date();
+const TODAY = new Date();
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US").format(value);
@@ -15,13 +15,13 @@ export default function Home() {
   const [error, setError] = useState("");
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
-  const birth = submittedDate ? parseBirthDate(submittedDate, DEFAULT_TODAY) : null;
-  const stats = birth ? calculateStats(birth, DEFAULT_TODAY) : null;
-  const weeks = useMemo(() => birth ? buildLifeWeeks(birth, DEFAULT_TODAY, 90) : [], [birth]);
+  const birth = submittedDate ? parseBirthDate(submittedDate, TODAY) : null;
+  const stats = birth ? calculateStats(birth, TODAY) : null;
+  const weeks = useMemo(() => birth ? buildLifeWeeks(birth, TODAY, 90) : [], [birth]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const parsed = parseBirthDate(birthDate, DEFAULT_TODAY);
+    const parsed = parseBirthDate(birthDate, TODAY);
     if (!parsed) {
       setError("Enter a valid date of birth that is not in the future.");
       return;
@@ -31,13 +31,12 @@ export default function Home() {
     setSelectedYear(null);
   }
 
-  const birthday = birth ? isBirthday(birth, DEFAULT_TODAY) : false;
-  const currentYear = birth ? DEFAULT_TODAY.getUTCFullYear() - birth.getUTCFullYear() : 0;
+  const birthday = birth ? isBirthday(birth, TODAY) : false;
+  const currentYear = stats?.ageYears ?? 0;
   const displayedYear = selectedYear ?? currentYear;
-  const yearWeeks = weeks.filter((week) => {
-    const date = new Date(`${week.date}T00:00:00Z`);
-    return date.getUTCFullYear() - (birth?.getUTCFullYear() ?? 0) === displayedYear;
-  });
+  const yearWeeks = birth
+    ? weeks.filter((week) => calculateAge(birth, new Date(`${week.date}T00:00:00Z`)).years === displayedYear)
+    : [];
 
   return (
     <main className="page-shell">
@@ -55,7 +54,7 @@ export default function Home() {
               id="birth-date"
               type="date"
               value={birthDate}
-              max={new Date().toISOString().slice(0, 10)}
+              max={TODAY.toISOString().slice(0, 10)}
               onChange={(event) => setBirthDate(event.target.value)}
             />
             <button type="submit">Explore my timeline</button>
