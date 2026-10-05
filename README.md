@@ -11,12 +11,13 @@ Life in Commits turns a birth date into an interactive timeline so you can explo
 ## Features
 
 • Lifetime view using weeks as the primary unit
-• Current day marker
-• Birthday recognition
-• Year explorer
-• Lifetime statistics
+• Detailed view for individual ages
+• Current day and birthday markers
+• Age, days lived, weeks lived, and birthday statistics
+• Calendar aware date calculations
+• Leap year handling
 • Responsive interface
-• Accessible timeline controls
+• Keyboard accessible timeline controls
 
 ## Tech stack
 
@@ -40,13 +41,13 @@ Start the development server:
 npm run dev
 ```
 
-Run the tests:
+Run the test suite:
 
 ```bash
 npm test
 ```
 
-Build for production:
+Create a production build:
 
 ```bash
 npm run build
@@ -54,13 +55,13 @@ npm run build
 
 ## Architecture
 
-The date calculation logic lives in `src/lib/life.ts` and is kept separate from the interface. The timeline is generated from UTC dates so the result does not change because of the user's local timezone.
+The date and timeline calculations live separately from the interface in `src/lib/life.ts`. This keeps the core logic independently testable and prevents date arithmetic from being spread across the UI.
 
-The application is intentionally client side. There is no account system, database, or external API.
+The application uses UTC calendar dates for deterministic calculations across time zones.
 
 ## Scope
 
-The project focuses on accurate date calculations, useful interaction, and a clear visualization of time. Future additions should support that purpose rather than add unrelated application features.
+The project intentionally avoids accounts, databases, backend services, and unrelated features. The focus is accurate date calculations, useful interaction, and a clear visualization of time.
 
 ## License
 
