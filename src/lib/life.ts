@@ -33,14 +33,6 @@ function isValidDate(date: Date, value: string): boolean {
   return Number.isFinite(date.getTime()) && formatDate(date) === value;
 }
 
-export function parseBirthDate(value: string, today = new Date()): Date | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
-  const date = utcDate(value);
-  const current = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-  if (!isValidDate(date, value) || date > current) return null;
-  return date;
-}
-
 function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 }
@@ -51,21 +43,31 @@ function anniversary(year: number, birth: Date): Date {
   return new Date(Date.UTC(year, month, day));
 }
 
+export function parseBirthDate(value: string, today = new Date()): Date | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const date = utcDate(value);
+  const current = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  if (!isValidDate(date, value) || date > current) return null;
+  return date;
+}
+
 export function calculateAge(birth: Date, today: Date): { years: number; months: number; days: number } {
-  let years = today.getUTCFullYear() - birth.getUTCFullYear();
-  let months = today.getUTCMonth() - birth.getUTCMonth();
-  let days = today.getUTCDate() - birth.getUTCDate();
+  const current = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  let years = current.getUTCFullYear() - birth.getUTCFullYear();
+  const birthdayThisYear = anniversary(current.getUTCFullYear(), birth);
+
+  if (birthdayThisYear > current) years -= 1;
+
+  const lastBirthday = anniversary(birth.getUTCFullYear() + years, birth);
+  let months = current.getUTCMonth() - lastBirthday.getUTCMonth();
+  let days = current.getUTCDate() - lastBirthday.getUTCDate();
 
   if (days < 0) {
     months -= 1;
-    const previousMonth = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 0));
-    days += previousMonth.getUTCDate();
+    days += daysInMonth(current.getUTCFullYear(), current.getUTCMonth() - 1);
   }
 
-  if (months < 0) {
-    years -= 1;
-    months += 12;
-  }
+  if (months < 0) months += 12;
 
   return { years, months, days };
 }
@@ -117,5 +119,6 @@ export function buildLifeWeeks(birth: Date, today = new Date(), futureYears = 80
 }
 
 export function isBirthday(birth: Date, today = new Date()): boolean {
-  return birth.getUTCMonth() === today.getUTCMonth() && birth.getUTCDate() === today.getUTCDate();
+  const current = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  return anniversary(current.getUTCFullYear(), birth).getTime() === current.getTime();
 }
