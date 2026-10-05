@@ -8,16 +8,15 @@ GitHub makes years of development activity easy to see at a glance. Life is also
 
 Life in Commits turns a birth date into an interactive timeline so you can explore the time you have lived, the year you are in, and the point where today sits on the larger timeline.
 
-## Planned features
+## Features
 
 • Lifetime view using weeks as the primary unit
-• Detailed day view for individual years
-• Current day and birthday markers
-• Year exploration
-• Optional personal milestones
+• Current day marker
+• Birthday recognition
+• Year explorer
 • Lifetime statistics
-• Shareable timeline state
-• Responsive and accessible interface
+• Responsive interface
+• Accessible timeline controls
 
 ## Tech stack
 
@@ -25,15 +24,43 @@ Next.js
 TypeScript
 React
 CSS
-Date utilities
+Vitest
 
 ## Development
 
-The project is being built as a small client side application. Date calculations and timeline generation will remain separate from the interface so the core logic can be tested independently.
+Install the dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Run the tests:
+
+```bash
+npm test
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+## Architecture
+
+The date calculation logic lives in `src/lib/life.ts` and is kept separate from the interface. The timeline is generated from UTC dates so the result does not change because of the user's local timezone.
+
+The application is intentionally client side. There is no account system, database, or external API.
 
 ## Scope
 
-The project intentionally avoids accounts, databases, unnecessary backend services, and unrelated features. The focus is accurate date calculations, useful interaction, and a clear visualization of time.
+The project focuses on accurate date calculations, useful interaction, and a clear visualization of time. Future additions should support that purpose rather than add unrelated application features.
 
 ## License
 
