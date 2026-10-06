@@ -25,9 +25,16 @@ function formatDateLong(value: string): string {
 }
 
 function nextBirthdayDate(birth: Date, today: Date): Date {
-  const year = today.getUTCFullYear() + (isBirthday(birth, today) ? 1 : 0);
-  const day = Math.min(birth.getUTCDate(), new Date(Date.UTC(year, birth.getUTCMonth() + 1, 0)).getUTCDate());
-  return new Date(Date.UTC(year, birth.getUTCMonth(), day));
+  let year = today.getUTCFullYear();
+  const month = birth.getUTCMonth();
+  const day = Math.min(birth.getUTCDate(), new Date(Date.UTC(year, month + 1, 0)).getUTCDate());
+  let next = new Date(Date.UTC(year, month, day));
+  if (next <= today) {
+    year += 1;
+    const adjustedDay = Math.min(birth.getUTCDate(), new Date(Date.UTC(year, month + 1, 0)).getUTCDate());
+    next = new Date(Date.UTC(year, month, adjustedDay));
+  }
+  return next;
 }
 
 export default function Home() {
