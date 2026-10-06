@@ -6,13 +6,14 @@ An interactive lifetime timeline visualized as a GitHub style contribution graph
 
 GitHub makes years of development activity easy to see at a glance. Life is also measured in days and weeks, but those units are harder to visualize.
 
-Life in Commits turns a birth date into an interactive timeline so you can explore the time you have lived, the year you are in, and the point where today sits on the larger timeline.
+Life in Commits turns a birth date into an interactive timeline so you can see where you are in the larger picture and explore individual ages in more detail.
 
 ## Features
 
 • Lifetime view using weeks as the primary unit
+• 80 year reference timeline
 • Detailed view for individual ages
-• Current day and birthday markers
+• Current week and birthday markers
 • Age, days lived, weeks lived, and birthday statistics
 • Calendar aware date calculations
 • Leap year handling
