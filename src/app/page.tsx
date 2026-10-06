@@ -4,9 +4,14 @@ import { FormEvent, useMemo, useState } from "react";
 import { buildLifeWeeks, calculateAge, calculateStats, isBirthday, parseBirthDate } from "@/lib/life";
 
 const TODAY = new Date();
+const REFERENCE_YEARS = 80;
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US").format(value);
+}
+
+function formatPercent(value: number): string {
+  return `${(value * 100).toFixed(1)}%`;
 }
 
 export default function Home() {
@@ -17,7 +22,10 @@ export default function Home() {
 
   const birth = submittedDate ? parseBirthDate(submittedDate, TODAY) : null;
   const stats = birth ? calculateStats(birth, TODAY) : null;
-  const weeks = useMemo(() => birth ? buildLifeWeeks(birth, TODAY, 90) : [], [birth]);
+  const weeks = useMemo(
+    () => (birth ? buildLifeWeeks(birth, TODAY, REFERENCE_YEARS) : []),
+    [birth],
+  );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,9 +50,9 @@ export default function Home() {
     <main className="page-shell">
       <section className="hero">
         <p className="eyebrow">LIFE IN COMMITS</p>
-        <h1>See your lifetime at a glance.</h1>
+        <h1>See your life in weeks.</h1>
         <p className="intro">
-          A lifetime is made of days and weeks. This turns those units into an interactive timeline you can explore.
+          A lifetime feels abstract until you put it on a calendar. Enter your date of birth and see where you are.
         </p>
 
         <form className="date-form" onSubmit={handleSubmit} noValidate>
@@ -75,7 +83,7 @@ export default function Home() {
             </div>
             <div className="birthday-marker" aria-label={birthday ? "Today is your birthday" : "Today marker"}>
               <span className="marker-dot" />
-              <span>{birthday ? "Your next year starts here." : "This is where you are."}</span>
+              <span>{birthday ? "Today marks another year of your life." : "This is where you are today."}</span>
             </div>
           </div>
 
@@ -90,12 +98,17 @@ export default function Home() {
             <div className="section-heading">
               <div>
                 <p className="eyebrow">LIFETIME</p>
-                <h2>Weeks lived</h2>
+                <h2>Your life in weeks</h2>
               </div>
-              <p className="muted">One square represents one week.</p>
+              <p className="muted">One square represents one week. The grid uses an {REFERENCE_YEARS} year reference.</p>
             </div>
 
-            <div className="life-grid" aria-label="Lifetime week timeline">
+            <div className="lifetime-context">
+              <strong>{formatNumber(stats.weeksLived)} weeks lived</strong>
+              <span>{formatPercent(Math.min(stats.ageYears / REFERENCE_YEARS, 1))} of the reference period</span>
+            </div>
+
+            <div className="life-grid" aria-label={`Lifetime week timeline using an ${REFERENCE_YEARS} year reference`}>
               {weeks.map((week) => (
                 <button
                   key={week.index}
@@ -110,7 +123,7 @@ export default function Home() {
             <div className="legend">
               <span><i className="legend-cell past" /> Lived</span>
               <span><i className="legend-cell current" /> Current</span>
-              <span><i className="legend-cell future" /> Future</span>
+              <span><i className="legend-cell future" /> Reference period</span>
             </div>
           </div>
 
@@ -123,7 +136,7 @@ export default function Home() {
               <p className="muted">Explore one year in more detail.</p>
             </div>
             <div className="year-picker" role="list" aria-label="Choose an age">
-              {Array.from({ length: Math.min(currentYear + 1, 91) }, (_, age) => (
+              {Array.from({ length: Math.min(currentYear + 1, REFERENCE_YEARS + 1) }, (_, age) => (
                 <button
                   key={age}
                   type="button"
