@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { buildLifeWeeks, calculateAge, calculateStats, isBirthday, parseBirthDate } from "@/lib/life";
 
-const TODAY = new Date();
-const REFERENCE_YEARS = 80;
+const REFERENCE_YEARS = 90;
+
+type Theme = "light" | "dark";
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US").format(value);
@@ -14,174 +15,231 @@ function formatPercent(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+function formatDateLong(value: string): string {
+  return new Date(`${value}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function nextBirthdayDate(birth: Date, today: Date): Date {
+  const year = today.getUTCFullYear() + (isBirthday(birth, today) ? 1 : 0);
+  const day = Math.min(birth.getUTCDate(), new Date(Date.UTC(year, birth.getUTCMonth() + 1, 0)).getUTCDate());
+  return new Date(Date.UTC(year, birth.getUTCMonth(), day));
+}
+
 export default function Home() {
   const [birthDate, setBirthDate] = useState("");
   const [submittedDate, setSubmittedDate] = useState("");
   const [error, setError] = useState("");
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [theme, setTheme] = useState<Theme>("light");
 
-  const birth = submittedDate ? parseBirthDate(submittedDate, TODAY) : null;
-  const stats = birth ? calculateStats(birth, TODAY) : null;
+  const today = useMemo(() => new Date(), []);
+  const birth = submittedDate ? parseBirthDate(submittedDate, today) : null;
+  const stats = birth ? calculateStats(birth, today) : null;
   const weeks = useMemo(
-    () => (birth ? buildLifeWeeks(birth, TODAY, REFERENCE_YEARS) : []),
-    [birth],
+    () => (birth ? buildLifeWeeks(birth, today, REFERENCE_YEARS) : []),
+    [birth, today],
   );
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("life-in-commits-theme");
+    if (saved === "dark" || saved === "light") setTheme(saved);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("life-in-commits-theme", theme);
+  }, [theme]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const parsed = parseBirthDate(birthDate, TODAY);
+    const parsed = parseBirthDate(birthDate, today);
     if (!parsed) {
       setError("Enter a valid date of birth that is not in the future.");
       return;
     }
     setError("");
     setSubmittedDate(birthDate);
-    setSelectedYear(null);
   }
 
-  const birthday = birth ? isBirthday(birth, TODAY) : false;
-  const currentYear = stats?.ageYears ?? 0;
-  const displayedYear = selectedYear ?? currentYear;
-  const yearWeeks = birth
-    ? weeks.filter((week) => calculateAge(birth, new Date(`${week.date}T00:00:00Z`)).years === displayedYear)
-    : [];
+  const birthday = birth ? isBirthday(birth, today) : false;
+  const currentAge = stats?.ageYears ?? 0;
+
+  const yearGroups = useMemo(() => {
+    if (!birth) return [] as typeof weeks[];
+    const groups = Array.from({ length: REFERENCE_YEARS }, () => [] as typeof weeks);
+    for (const week of weeks) {
+      const age = calculateAge(birth, new Date(`${week.date}T00:00:00Z`)).years;
+      if (age >= 0 && age < REFERENCE_YEARS) groups[age].push(week);
+    }
+    return groups;
+  }, [birth, weeks]);
+
+  const currentYearWeeks = yearGroups[currentAge] ?? [];
+  const livedWeeks = weeks.filter((week) => week.state === "past").length;
+  const futureWeeks = weeks.filter((week) => week.state === "future").length;
+  const referenceWeeks = weeks.length;
+  const referenceProgress = referenceWeeks ? livedWeeks / referenceWeeks : 0;
 
   return (
-    <main className="page-shell">
-      <section className="hero">
-        <p className="eyebrow">LIFE IN COMMITS</p>
-        <h1>See your life in weeks.</h1>
-        <p className="intro">
-          A lifetime feels abstract until you put it on a calendar. Enter your date of birth and see where you are.
-        </p>
+    <main className="app-shell">
+      <aside className="sidebar">
+        <div>
+          <div className="brand">
+            <span className="brand-mark" aria-hidden="true">✦</span>
+            <div>
+              <strong>Life in Commits</strong>
+              <span>Your life. Visualized.</span>
+            </div>
+          </div>
 
-        <form className="date-form" onSubmit={handleSubmit} noValidate>
-          <label htmlFor="birth-date">Date of birth</label>
-          <div className="form-row">
+          <form className="sidebar-form" onSubmit={handleSubmit} noValidate>
+            <label htmlFor="birth-date">Your date of birth</label>
             <input
               id="birth-date"
               type="date"
               value={birthDate}
-              max={TODAY.toISOString().slice(0, 10)}
+              max={today.toISOString().slice(0, 10)}
               onChange={(event) => setBirthDate(event.target.value)}
             />
-            <button type="submit">Explore my timeline</button>
-          </div>
-          {error && <p className="error" role="alert">{error}</p>}
-        </form>
-      </section>
+            <button className="primary-button" type="submit">Explore my timeline</button>
+            {error && <p className="error" role="alert">{error}</p>}
+          </form>
 
-      {stats && birth && (
-        <section className="dashboard" aria-live="polite">
-          <div className="summary-card">
-            <div>
-              <p className="eyebrow">{birthday ? "BIRTHDAY" : "TODAY"}</p>
-              <h2>{stats.ageYears} years</h2>
-              <p className="muted">
-                {stats.ageMonths} months and {stats.ageDays} days into your current age.
-              </p>
+          {stats && birth && (
+            <div className="age-panel">
+              <span className="panel-label">CURRENT AGE</span>
+              <strong>{stats.ageYears} years</strong>
+              <p>Born on {formatDateLong(stats.birthDate)}</p>
+              <div className="panel-divider" />
+              <div className="sidebar-stat"><span>Days lived</span><strong>{formatNumber(stats.daysLived)}</strong></div>
+              <div className="sidebar-stat"><span>Weeks lived</span><strong>{formatNumber(stats.weeksLived)}</strong></div>
+              <div className="sidebar-stat"><span>Days until birthday</span><strong>{formatNumber(stats.daysUntilBirthday)}</strong></div>
             </div>
-            <div className="birthday-marker" aria-label={birthday ? "Today is your birthday" : "Today marker"}>
-              <span className="marker-dot" />
-              <span>{birthday ? "Today marks another year of your life." : "This is where you are today."}</span>
-            </div>
-          </div>
+          )}
+        </div>
 
-          <div className="stats-grid">
-            <Stat label="Days lived" value={formatNumber(stats.daysLived)} />
-            <Stat label="Weeks lived" value={formatNumber(stats.weeksLived)} />
-            <Stat label="Days until birthday" value={formatNumber(stats.daysUntilBirthday)} />
-            <Stat label="Born on" value={stats.birthWeekday} />
-          </div>
+        <div className="sidebar-footer">
+          <button
+            className="theme-toggle"
+            type="button"
+            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          >
+            <span aria-hidden="true">{theme === "light" ? "◐" : "○"}</span>
+            {theme === "light" ? "Dark mode" : "Light mode"}
+          </button>
+          <p>“Not just the years in your life, but the life in your years.”</p>
+        </div>
+      </aside>
 
-          <div className="timeline-card">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">LIFETIME</p>
-                <h2>Your life in weeks</h2>
-              </div>
-              <p className="muted">One square represents one week. The grid uses an {REFERENCE_YEARS} year reference.</p>
-            </div>
-
-            <div className="lifetime-context">
-              <strong>{formatNumber(stats.weeksLived)} weeks lived</strong>
-              <span>{formatPercent(Math.min(stats.ageYears / REFERENCE_YEARS, 1))} of the reference period</span>
-            </div>
-
-            <div className="life-grid" aria-label={`Lifetime week timeline using an ${REFERENCE_YEARS} year reference`}>
-              {weeks.map((week) => (
-                <button
-                  key={week.index}
-                  className={`life-cell ${week.state}`}
-                  title={`${week.date} · ${week.state}`}
-                  aria-label={`Week beginning ${week.date}, ${week.state}`}
-                  type="button"
-                />
-              ))}
-            </div>
-
-            <div className="legend">
-              <span><i className="legend-cell past" /> Lived</span>
-              <span><i className="legend-cell current" /> Current</span>
-              <span><i className="legend-cell future" /> Reference period</span>
-            </div>
-          </div>
-
-          <div className="year-card">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">YEAR EXPLORER</p>
-                <h2>Age {displayedYear}</h2>
-              </div>
-              <p className="muted">Explore one year in more detail.</p>
-            </div>
-            <div className="year-picker" role="list" aria-label="Choose an age">
-              {Array.from({ length: Math.min(currentYear + 1, REFERENCE_YEARS + 1) }, (_, age) => (
-                <button
-                  key={age}
-                  type="button"
-                  className={age === displayedYear ? "selected" : ""}
-                  onClick={() => setSelectedYear(age)}
-                >
-                  {age}
-                </button>
-              ))}
-            </div>
-            <div className="year-grid" aria-label={`Weeks in age ${displayedYear}`}>
-              {yearWeeks.map((week) => (
-                <button
-                  key={week.index}
-                  type="button"
-                  className={`life-cell ${week.state}`}
-                  title={week.date}
-                  aria-label={`Week beginning ${week.date}`}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {!stats && (
-        <section className="concept">
+      <section className="content">
+        <header className="content-header">
           <div>
-            <p className="eyebrow">THE IDEA</p>
-            <h2>A different way to see time.</h2>
+            <p className="eyebrow">YOUR LIFETIME</p>
+            <h1>See your life in weeks.</h1>
+            <p className="intro">A visual journey through your life, one week at a time.</p>
           </div>
-          <p>
-            GitHub turns years of development activity into a grid you can understand in seconds. Life is also a sequence of days and weeks. Life in Commits uses the same visual idea to make that timeline visible.
-          </p>
-        </section>
-      )}
+          <div className="reference-badge">
+            <strong>{REFERENCE_YEARS} year view</strong>
+            <span>{referenceWeeks ? `${formatNumber(referenceWeeks)} weeks in this reference` : "Choose a date to begin"}</span>
+          </div>
+        </header>
+
+        {!stats || !birth ? (
+          <section className="empty-state">
+            <p className="eyebrow">START HERE</p>
+            <h2>Put a date on the timeline.</h2>
+            <p>Enter your date of birth to see your life divided into years and weeks.</p>
+          </section>
+        ) : (
+          <>
+            <section className="summary-strip">
+              <SummaryItem label="Past" value={`${formatNumber(livedWeeks)} weeks`} percent={formatPercent(livedWeeks / referenceWeeks)} tone="past" />
+              <SummaryItem label="Current year" value={`${formatNumber(currentYearWeeks.length)} weeks`} percent={formatPercent(currentYearWeeks.length / referenceWeeks)} tone="current" />
+              <SummaryItem label="Future" value={`${formatNumber(futureWeeks)} weeks`} percent={formatPercent(futureWeeks / referenceWeeks)} tone="future" />
+            </section>
+
+            <section className="timeline-section">
+              <div className="section-topline">
+                <div>
+                  <p className="eyebrow">LIFETIME VIEW</p>
+                  <h2>Every year, one block</h2>
+                </div>
+                <div className="today-note">
+                  <span className="current-dot" />
+                  {birthday ? "Today is your birthday." : `You are ${stats.ageYears} years, ${stats.ageMonths} months, and ${stats.ageDays} days old.`}
+                </div>
+              </div>
+
+              <div className="year-grid-large">
+                {yearGroups.map((yearWeeks, age) => {
+                  const calendarYear = birth.getUTCFullYear() + age;
+                  const isCurrent = age === currentAge;
+                  return (
+                    <article className={`year-block ${isCurrent ? "is-current" : ""}`} key={age}>
+                      <div className="year-heading">
+                        <strong>{calendarYear}</strong>
+                        <span>Age {age}</span>
+                      </div>
+                      <div className="week-grid" aria-label={`Age ${age}, year ${calendarYear}`}>
+                        {yearWeeks.map((week) => (
+                          <button
+                            key={week.index}
+                            type="button"
+                            className={`week-cell ${week.state}`}
+                            title={`${week.date} · ${week.state}`}
+                            aria-label={`Week beginning ${week.date}, ${week.state}`}
+                          />
+                        ))}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <div className="legend">
+                <span><i className="legend-cell past" /> Past</span>
+                <span><i className="legend-cell current" /> Current</span>
+                <span><i className="legend-cell future" /> Future</span>
+              </div>
+            </section>
+
+            <section className="bottom-grid">
+              <InfoCard title="Next birthday" value={formatDateLong(nextBirthdayDate(birth, today).toISOString().slice(0, 10))} detail={`${formatNumber(stats.daysUntilBirthday)} days from today`} />
+              <InfoCard title="Life so far" value={formatPercent(referenceProgress)} detail={`${formatNumber(livedWeeks)} of ${formatNumber(referenceWeeks)} weeks lived`} progress={referenceProgress} />
+              <InfoCard title="A simple reminder" value={`${formatNumber(stats.weeksLived)} weeks`} detail="Each square is one week. The reference is a visualization, not a prediction of lifespan." />
+            </section>
+          </>
+        )}
+      </section>
     </main>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function SummaryItem({ label, value, percent, tone }: { label: string; value: string; percent: string; tone: "past" | "current" | "future" }) {
   return (
-    <div className="stat-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
+    <div className="summary-item">
+      <span className={`summary-icon ${tone}`} />
+      <div>
+        <strong>{label}</strong>
+        <span>{value}</span>
+        <small>{percent}</small>
+      </div>
     </div>
+  );
+}
+
+function InfoCard({ title, value, detail, progress }: { title: string; value: string; detail: string; progress?: number }) {
+  return (
+    <article className="info-card">
+      <p className="eyebrow">{title}</p>
+      <strong>{value}</strong>
+      {progress !== undefined && <div className="progress-track"><span style={{ width: `${Math.min(progress * 100, 100)}%` }} /></div>}
+      <p>{detail}</p>
+    </article>
   );
 }
