@@ -21,6 +21,8 @@ Life in Commits turns a birth date into an interactive timeline so you can see w
 - Leap year handling
 - Responsive interface
 - Keyboard accessible timeline controls
+- App logo based on the life grid
+- Share your life grid with the native share sheet, a copied link, or a post on X
 
 ## Tech stack
 
