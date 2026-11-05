@@ -17,9 +17,12 @@ export default function ShareButton({ weeksLived, daysLived, ageYears }: ShareBu
   const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${text} ${SITE_URL} #BuildInPublic`)}`;
 
   async function handleShare() {
-    if (typeof navigator !== "undefined" && "share" in navigator) {
+    const nav = navigator as Navigator & {
+      share?: (data: { title: string; text: string; url: string }) => Promise<void>;
+    };
+    if (typeof nav.share === "function") {
       try {
-        await navigator.share({ title: "Life in Commits", text, url: SITE_URL });
+        await nav.share({ title: "Life in Commits", text, url: SITE_URL });
       } catch {
         // The user closed the share sheet; nothing else to do.
       }
