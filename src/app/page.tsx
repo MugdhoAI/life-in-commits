@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { buildLifeWeeks, calculateAge, calculateStats, isBirthday, parseBirthDate } from "@/lib/life";
 import Logo from "./logo";
+import ShareButton from "./share-button";
 
 const REFERENCE_YEARS = 90;
 
@@ -126,6 +127,7 @@ export default function Home() {
               <div className="sidebar-stat"><span>Days lived</span><strong>{formatNumber(stats.daysLived)}</strong></div>
               <div className="sidebar-stat"><span>Weeks lived</span><strong>{formatNumber(stats.weeksLived)}</strong></div>
               <div className="sidebar-stat"><span>Days until birthday</span><strong>{formatNumber(stats.daysUntilBirthday)}</strong></div>
+              <ShareButton weeksLived={stats.weeksLived} daysLived={stats.daysLived} ageYears={stats.ageYears} />
             </div>
           )}
         </div>
