@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/life-in-commits-hero.svg" alt="Life in Commits: a lifetime timeline in weeks, shown as a GitHub style contribution graph" width="100%">
+</p>
+
 # Life in Commits
 
 An interactive lifetime timeline visualized as a GitHub style contribution graph.
