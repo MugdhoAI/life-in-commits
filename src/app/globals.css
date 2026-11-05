@@ -644,3 +644,44 @@ h2 {
     transform: none;
   }
 }
+
+.logo-mark {
+  background: transparent;
+}
+
+.logo-mark svg {
+  display: block;
+  border-radius: 12px;
+}
+
+.share-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.share-button {
+  flex: 1;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--background);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.share-button:hover {
+  opacity: 0.88;
+}
+
+.share-x {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
