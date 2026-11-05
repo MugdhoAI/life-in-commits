@@ -2,6 +2,8 @@
 
 An interactive lifetime timeline visualized as a GitHub style contribution graph.
 
+**Live demo:** https://life-in-commits.vercel.app/
+
 ## Why it exists
 
 GitHub makes years of development activity easy to see at a glance. Life is also measured in days and weeks, but those units are harder to visualize.
@@ -10,15 +12,15 @@ Life in Commits turns a birth date into an interactive timeline so you can see w
 
 ## Features
 
-• Lifetime view using weeks as the primary unit
-• 80 year reference timeline
-• Detailed view for individual ages
-• Current week and birthday markers
-• Age, days lived, weeks lived, and birthday statistics
-• Calendar aware date calculations
-• Leap year handling
-• Responsive interface
-• Keyboard accessible timeline controls
+- Lifetime view using weeks as the primary unit
+- 90 year reference timeline
+- Detailed view for individual ages
+- Current week and birthday markers
+- Age, days lived, weeks lived, and birthday statistics
+- Calendar aware date calculations
+- Leap year handling
+- Responsive interface
+- Keyboard accessible timeline controls
 
 ## Tech stack
 
