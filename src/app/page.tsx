@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { buildLifeWeeks, calculateAge, calculateStats, isBirthday, parseBirthDate } from "@/lib/life";
+import Logo from "./logo";
 
 const REFERENCE_YEARS = 90;
 
@@ -96,7 +97,7 @@ export default function Home() {
       <aside className="sidebar">
         <div>
           <div className="brand">
-            <span className="brand-mark" aria-hidden="true">✦</span>
+            <Logo />
             <div>
               <strong>Life in Commits</strong>
               <span>Your life. Visualized.</span>
