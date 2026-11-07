@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/life-in-commits-hero.svg?v=4" alt="Life in Commits: a lifetime timeline in weeks, shown as a GitHub style contribution graph" width="100%">
+  <img src="docs/assets/life-in-commits-hero.svg?v=5" alt="Life in Commits: a lifetime timeline in weeks, shown as a GitHub style contribution graph" width="100%">
 </p>
 
 # Life in Commits
