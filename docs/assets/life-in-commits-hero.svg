@@ -13,7 +13,7 @@
       <stop offset="0" stop-color="#58a6ff" stop-opacity="0.5"/>
       <stop offset="1" stop-color="#58a6ff" stop-opacity="0"/>
     </radialGradient>
-  <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#cfe8ff" stop-opacity="0.08"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+  <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.5" stop-color="#cfe8ff" stop-opacity="0.15"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
     <clipPath id="panelClip"><rect x="748" y="92" width="612" height="336" rx="18"/></clipPath>
   </defs>
   <rect width="1440" height="520" fill="url(#bg)"/>
@@ -47,12 +47,12 @@
   <g font-family="ui-sans-serif, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14.5" fill="#8b949e">
     <rect x="774" y="116" width="10" height="10" rx="2.5" fill="#26a641"/>
     <text x="791" y="126">weeks lived</text>
-    <rect x="904" y="116" width="10" height="10" rx="2.5" fill="#58a6ff"><animate attributeName="opacity" values="1;0.4;1" dur="2.8s" repeatCount="indefinite"/></rect>
+    <rect x="904" y="116" width="10" height="10" rx="2.5" fill="#58a6ff"><animate attributeName="opacity" values="1;0.25;1" dur="2.8s" repeatCount="indefinite"/></rect>
     <text x="921" y="126">current week</text>
     <rect x="1042" y="116" width="10" height="10" rx="2.5" fill="#1c2330"/>
     <text x="1059" y="126">still ahead</text>
     <text x="1334" y="414" text-anchor="end" fill="#5b6675">one square = one week</text>
   </g>
 
-  <g clip-path="url(#panelClip)"><g><animateTransform attributeName="transform" type="translate" values="-200 0;880 0;880 0" keyTimes="0;0.3;1" dur="9s" repeatCount="indefinite"/><rect x="700" y="40" width="190" height="440" fill="url(#sheen)" transform="rotate(14 795 260)"/></g></g>
+  <g clip-path="url(#panelClip)"><g><animateTransform attributeName="transform" type="translate" values="-200 0;880 0;880 0" keyTimes="0;0.3;1" dur="9s" repeatCount="indefinite"/><rect x="690" y="40" width="230" height="440" fill="url(#sheen)" transform="rotate(14 795 260)"/></g></g>
 </svg>
